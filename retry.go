@@ -7,7 +7,7 @@ import (
 )
 
 type BackoffStrategy interface {
-	next(attempt int) int // next The current value of the counter and immediately updates it with the next value
+	Next(attempt int) int // next The current value of the counter and immediately updates it with the next value
 }
 
 // FixedBackOffStrategy A BackoffStrategy that pauses for a fixed period of time before continuing.
@@ -15,7 +15,7 @@ type FixedBackOffStrategy struct {
 	period int
 }
 
-func (b *FixedBackOffStrategy) next(attempt int) int {
+func (b *FixedBackOffStrategy) Next(attempt int) int {
 	return b.period
 }
 
@@ -27,7 +27,7 @@ type ExponentialBackoffStrategy struct {
 	factor   float64
 }
 
-func (b *ExponentialBackoffStrategy) next(attempt int) int {
+func (b *ExponentialBackoffStrategy) Next(attempt int) int {
 	return int(math.Min(math.Pow(b.factor, float64(attempt-1))*b.initTime, b.maxTime))
 }
 
@@ -38,7 +38,7 @@ type Retry struct {
 	retries   int
 	unlimited bool
 	onError   OnError
-	backoff   BackoffStrategy
+	Backoff   BackoffStrategy
 }
 
 // New initialize new Retry
@@ -59,7 +59,7 @@ func (r *Retry) SetNumberOfRetries(retries int) {
 }
 
 func (r *Retry) SetFixedBackOff(period int) {
-	r.backoff = &FixedBackOffStrategy{
+	r.Backoff = &FixedBackOffStrategy{
 		period: period,
 	}
 }
@@ -69,7 +69,7 @@ func (r *Retry) SetFixedBackOff(period int) {
 // maxTime - in milliseconds for which the execution can be suspended
 // factor - is the base of the power by which the waiting time increases
 func (r *Retry) SetExponentialBackoff(initTime int, maxTime int, factor float64) {
-	r.backoff = &ExponentialBackoffStrategy{
+	r.Backoff = &ExponentialBackoffStrategy{
 		initTime: float64(initTime),
 		maxTime:  float64(maxTime),
 		factor:   factor,
@@ -97,7 +97,7 @@ func (r *Retry) Execute(ctx context.Context, callback func(ctx context.Context, 
 
 		if r.unlimited || attempt <= r.retries {
 
-			next := time.Duration(r.backoff.next(attempt)) * time.Millisecond
+			next := time.Duration(r.Backoff.Next(attempt)) * time.Millisecond
 
 			if r.onError != nil {
 				r.onError(ctx, err, attempt, true, next)

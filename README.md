@@ -76,3 +76,17 @@ retries.SetExponentialBackoff(initTime, maxTime, factor)
 // retry 5 = +5000ms  = Math.pow(2, 4)*500 = 8000 > 5000
 // retry 6 = +5000ms  = Math.pow(2, 5)*500 = 16000 > 5000
 ```
+
+## Custom Backoff
+
+```go
+type CustomBackoff struct {
+}
+
+func (b *CustomBackoff) Next(attempt int) int {
+    return 200
+}
+
+retries.Backoff = &CustomBackoff{}
+
+```
