@@ -1,13 +1,18 @@
 # Retry
 
+[![ci](https://github.com/nidorx/retry/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nidorx/retry/actions/workflows/ci.yml)
+
 Simple golang library for retry mechanism
 
-```
+```go
+package main
+
 import (
     "context"
-	"errors"
+    "errors"
+    "fmt"
 	
-	"github.com/nidorx/retry"
+    "github.com/nidorx/retry"
 )
 
 func main() {
@@ -44,7 +49,7 @@ func main() {
 
 ## FixedBackOff
 
-```
+```go
 retries.SetFixedBackOff(500)
 
 // retry 1 = +500ms
@@ -53,7 +58,7 @@ retries.SetFixedBackOff(500)
 
 ## ExponentialBackoff
 
-```
+```go
 // initTime - in milliseconds for which the execution is suspended after the first attempt
 // maxTime - in milliseconds for which the execution can be suspended
 // factor - is the base of the power by which the waiting time increases
